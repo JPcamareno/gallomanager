@@ -16,6 +16,20 @@ export const auth = {
   onAuthStateChange: (cb) => supabase.auth.onAuthStateChange(cb),
 }
 
+// ─── SANITIZE ──────────────────────────────────────────────────────────────
+const DATE_FIELDS = [
+  'fecha_nacimiento', 'fecha_inicio', 'fecha_eclosion_esperada',
+  'fecha', 'proxima_revision', 'fecha_vencimiento',
+]
+
+function sanitize(obj) {
+  const result = { ...obj }
+  for (const field of DATE_FIELDS) {
+    if (field in result && result[field] === '') result[field] = null
+  }
+  return result
+}
+
 // ─── GENERIC CRUD ──────────────────────────────────────────────────────────
 export const db = {
   get: async (table, userId) => {
@@ -32,7 +46,7 @@ export const db = {
     const { id, ...rest } = item // strip any local id
     const { data, error } = await supabase
       .from(table)
-      .insert({ ...rest, user_id: userId })
+      .insert({ ...sanitize(rest), user_id: userId })
       .select()
       .single()
     if (error) throw error
@@ -43,7 +57,7 @@ export const db = {
     const { user_id, created_at, ...safe } = updates
     const { data, error } = await supabase
       .from(table)
-      .update(safe)
+      .update(sanitize(safe))
       .eq('id', id)
       .select()
       .single()
