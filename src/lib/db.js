@@ -17,15 +17,10 @@ export const auth = {
 }
 
 // ─── SANITIZE ──────────────────────────────────────────────────────────────
-const DATE_FIELDS = [
-  'fecha_nacimiento', 'fecha_inicio', 'fecha_eclosion_esperada',
-  'fecha', 'proxima_revision', 'fecha_vencimiento',
-]
-
 function sanitize(obj) {
   const result = { ...obj }
-  for (const field of DATE_FIELDS) {
-    if (field in result && result[field] === '') result[field] = null
+  for (const key of Object.keys(result)) {
+    if (result[key] === '') result[key] = null
   }
   return result
 }
